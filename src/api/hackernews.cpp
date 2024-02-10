@@ -126,6 +126,7 @@ Json::Value Hackernews::get(const string &apiEndpoint)
 
     string url = HACKERNEWS_API_URL + apiEndpoint;
 
+    char curl_error_buffer[CURL_ERROR_SIZE];
     string readBuffer;
     CURLcode res;
     CURL *curl = curl_easy_init();
@@ -139,6 +140,8 @@ Json::Value Hackernews::get(const string &apiEndpoint)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_error_buffer);
+        curl_error_buffer[0] = 0;
 
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
@@ -163,6 +166,7 @@ Json::Value Hackernews::get(const string &apiEndpoint)
             }
             default: {
                 Log::writeErrorLog("Hackernews API: " + url + " Response Code: " + std::to_string(res));
+                Log::writeErrorLog("cURL error: " + string(curl_error_buffer));
                 throw std::runtime_error("HTML Error Code" + std::to_string(response_code));
             }
             }
@@ -175,6 +179,8 @@ Json::Value Hackernews::get(const string &apiEndpoint)
         }
         else
         {
+            Log::writeErrorLog("Hackernews API: " + url + " Response Code: " + std::to_string(res));
+            Log::writeErrorLog("cURL error: " + string(curl_error_buffer));
             throw std::runtime_error("Curl RES Error Code " + std::to_string(res));
         }
     }

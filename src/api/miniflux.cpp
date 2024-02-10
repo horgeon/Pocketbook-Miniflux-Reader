@@ -169,6 +169,7 @@ void Miniflux::put(const std::string &apiEndpoint, const string &data)
     Util::connectToNetwork();
     string url = _url + apiEndpoint;
 
+    char curl_error_buffer[CURL_ERROR_SIZE];
     CURLcode res;
     CURL *curl = curl_easy_init();
 
@@ -181,6 +182,8 @@ void Miniflux::put(const std::string &apiEndpoint, const string &data)
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_error_buffer);
+        curl_error_buffer[0] = 0;
 
         if (_ignoreCert)
         {
@@ -213,6 +216,7 @@ void Miniflux::put(const std::string &apiEndpoint, const string &data)
         else
         {
             Log::writeErrorLog("Miniflux API: " + url + " RES Error Code: " + std::to_string(res));
+            Log::writeErrorLog("cURL error: " + string(curl_error_buffer));
             throw std::runtime_error("Minifllux API: " + url + " RES Error Code: " + std::to_string(res));
         }
     }
@@ -224,6 +228,7 @@ Json::Value Miniflux::get(const string &apiEndpoint)
     Util::connectToNetwork();
     string url = _url + apiEndpoint;
 
+    char curl_error_buffer[CURL_ERROR_SIZE];
     string readBuffer;
     CURLcode res;
     CURL *curl = curl_easy_init();
@@ -237,6 +242,8 @@ Json::Value Miniflux::get(const string &apiEndpoint)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_error_buffer);
+        curl_error_buffer[0] = 0;
 
         if (_ignoreCert)
         {
@@ -273,6 +280,7 @@ Json::Value Miniflux::get(const string &apiEndpoint)
         else
         {
             Log::writeErrorLog("Miniflux API: " + url + " RES Error Code: " + std::to_string(res));
+            Log::writeErrorLog("cURL error: " + string(curl_error_buffer));
             throw std::runtime_error("Curl RES Error Code " + std::to_string(res));
         }
     }
