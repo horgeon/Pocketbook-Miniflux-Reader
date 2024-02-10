@@ -180,6 +180,7 @@ void Miniflux::put(const std::string &apiEndpoint, const string &data)
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
         if (_ignoreCert)
         {
@@ -235,6 +236,7 @@ Json::Value Miniflux::get(const string &apiEndpoint)
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
         if (_ignoreCert)
         {
